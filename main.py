@@ -8,19 +8,19 @@ from aiogram import Bot, Dispatcher
 from bot.config import TOKEN
 from bot.handlers import router
 
-bot = Bot(TOKEN)
+bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 async def main():
+    dp.include_router(router=router)
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
     try:
-        dp.include_router(router)
-        await dp.start_polling(bot)
+        asyncio.run(main())
     
     except KeyboardInterrupt:
         print('Bot was interrupted by host.')
-
+    
     except:
         print('ERROR.')
-
-if __name__ == "__main__":
-    asyncio.run(main())

@@ -6,9 +6,11 @@
 from aiogram import F, Router
 from aiogram.types import Message
 from aiogram.filters import CommandStart, Command
+from bot.keyboards import main_keyboard
 
 router = Router()
 
 @router.message(CommandStart)
 async def cmd_start(message: Message):
-    await message.answer("Ahoj! 👋 Som PracaSK bot, váš spoľahlivý sprievodca pri hľadaní voľných pracovných miest na Slovensku.\nPomôžem vám rýchlo a jednoducho nájsť tie najlepšie ponuky práce, ktoré zodpovedajú vašim kritériám. \n\nPoužite príkaz /search pre hľadanie.")
+    await message.answer("Ahoj! 👋 Som PracaSK bot, váš spoľahlivý sprievodca pri hľadaní voľných pracovných miest na Slovensku.\nPomôžem vám rýchlo a jednoducho nájsť tie najlepšie ponuky práce, ktoré zodpovedajú vašim kritériám. \n\nPoužite príkaz /search pre hľadanie.",
+                         reply_markup=main_keyboard)
