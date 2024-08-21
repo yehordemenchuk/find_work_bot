@@ -51,32 +51,32 @@ def get_not_parsed_vacancies(headers: dict, base_url: str) -> list:
 
 def get_vacancy_tags(not_parsed_vacancy: Tag, base_url: str) -> list:
     title_tag = (
-        not_parsed_vacancy.find('h2').find('a') if base_url == PROFESIA_SK_URL else
-        not_parsed_vacancy.find('h2', class_='offer-title') if base_url == KARIERA_SK_URL else
-        not_parsed_vacancy.find('a')
+        not_parsed_vacancy.find("h2").find("a") if base_url == PROFESIA_SK_URL else
+        not_parsed_vacancy.find("h2", class_="offer-title") if base_url == KARIERA_SK_URL else
+        not_parsed_vacancy.find("a")
     )
 
     link_tag = (
         None if not title_tag else
         title_tag if base_url != KARIERA_SK_URL else
-        title_tag.find('a')
+        title_tag.find("a")
     )
 
     employer_tag = (
-        not_parsed_vacancy.find('span', class_='employer') if base_url == PROFESIA_SK_URL else
-        not_parsed_vacancy.find('div', class_='offer-employer') if base_url == KARIERA_SK_URL else
+        not_parsed_vacancy.find("span", class_="employer") if base_url == PROFESIA_SK_URL else
+        not_parsed_vacancy.find("div", class_="offer-employer") if base_url == KARIERA_SK_URL else
         None
     )
 
     location_tag = (
-        not_parsed_vacancy.find('span', class_='job-location') if base_url == PROFESIA_SK_URL else
-        not_parsed_vacancy.find('div', class_='offer-locality') if base_url == KARIERA_SK_URL else
+        not_parsed_vacancy.find("span", class_="job-location") if base_url == PROFESIA_SK_URL else
+        not_parsed_vacancy.find("div", class_="offer-locality") if base_url == KARIERA_SK_URL else
         None
     )
 
     sallary_tag = (
-        not_parsed_vacancy.find('span', class_='label label-bordered green half-margin-on-top') if base_url == PROFESIA_SK_URL else
-        not_parsed_vacancy.find('ul', class_='offer-info').find('li') if base_url == KARIERA_SK_URL else
+        not_parsed_vacancy.find("span", class_="label label-bordered green half-margin-on-top") if base_url == PROFESIA_SK_URL else
+        not_parsed_vacancy.find("ul", class_="offer-info").find("li") if base_url == KARIERA_SK_URL else
         None
     )
 
@@ -104,7 +104,7 @@ def get_parsed_vacancy(tags: list, base_url: str) -> Vacancy:
 
     return Vacancy(title, employer, link, sallary, location)
 
-def search_vacancies(base_url: str) -> list:
+def search_vacancies(base_url: str, conditions: dict) -> list:
     headers = { 
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36" 
     }
@@ -116,6 +116,9 @@ def search_vacancies(base_url: str) -> list:
     for not_parsed_vacancy in not_parsed_vacancies:
         tags = get_vacancy_tags(not_parsed_vacancy, base_url)
 
-        parsed_vacancies.append(get_parsed_vacancy(tags, base_url))
+        parsed_vacancy = get_parsed_vacancy(tags, base_url)
+
+        if parsed_vacancy.meets_condtions(conditions):
+            parsed_vacancies.append(parsed_vacancy)
     
     return parsed_vacancies
