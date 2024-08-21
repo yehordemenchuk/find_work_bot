@@ -2,7 +2,20 @@
 # © 2024 Yehor Demenchuk. All rights reserved.
 # Contact: demenchuk1210m@gmail.com
 # This code is provided "as is", without warranty of any kind.
+import re
 
+def replace_diacritics(location_name: str):
+    diacritics_table = {
+        "ľ": "l", "š": "s", "č": "c", "ť": "t", "ľ": "l", "ž": "z", "ý": "y", "á": "a", "í": "i", "é": "e", "ú": "u", "ä": "a"
+    }
+
+    lowered_location_name = location_name
+    
+    for diacritic in diacritics_table:
+        if diacritic in lowered_location_name:
+            lowered_location_name = lowered_location_name.replace(diacritic, diacritics_table[diacritic])
+    
+    return lowered_location_name
 class Vacancy:
     def __init__(self, title: str, employer: str, link: str, sallary: str, location: str):
         self._title = title
@@ -32,9 +45,16 @@ class Vacancy:
 
     def get_location(self) -> str: return self._location
 
-first_vacancy = Vacancy("IT", "MICROSOFT", None, "1234", "Slovensko")
-
-second_vacancy = Vacancy("IT", "Microsoft", None, "1234", "Slovensko")
-
-print(first_vacancy == second_vacancy)
+    def meets_condtions(self, conditions: dict) -> bool:
+        return (re.search(rf"({replace_diacritics(conditions["expected_name"])})", replace_diacritics(self._title)) 
+                and re.search(r"\d+", self._sallary).group() <= conditions["expected_sallary"] 
+                and re.search(rf"({replace_diacritics(conditions["expected_location"])})", replace_diacritics(self._location)))
     
+    def covert_to_dict(self) -> dict:
+        return {
+                "title": self._title,
+                "employer": self._employer,
+                "link": self._link,
+                "sallary": self._sallary,
+                "location": self._location
+               }
