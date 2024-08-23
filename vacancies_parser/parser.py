@@ -5,7 +5,7 @@
 
 import requests
 from bs4 import BeautifulSoup, Tag
-from vacancy import Vacancy
+from vacancies_parser.vacancy import Vacancy
 
 PROFESIA_SK_URL = "https://www.profesia.sk/praca/"
 

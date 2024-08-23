@@ -3,6 +3,7 @@
 # Contact: demenchuk1210m@gmail.com
 # This code is provided "as is", without warranty of any kind.
 import re
+from vacancies_parser.redis_client import redis
 
 def replace_diacritics(location_name: str):
     diacritics_table = {
@@ -17,7 +18,7 @@ def replace_diacritics(location_name: str):
     
     return lowered_location_name
 class Vacancy:
-    def __init__(self, title: str, employer: str, link: str, sallary: str, location: str):
+    def __init__(self, title: str = None, employer: str = None, link: str = None, sallary: str = None, location: str = None):
         self._title = title
 
         self._employer = employer
@@ -33,7 +34,7 @@ class Vacancy:
                 self._sallary == other._sallary and self._location == other._location)
 
     def __str__(self) -> str:
-        return f"{self._title}\nZamestnavateľ: {self._employer}\nMzda: {self._sallary}\nKde: {self._location}\nOdkaz: {self}" 
+        return f"{self._title}\nZamestnavateľ: {self._employer}\nMzda: {self._sallary}\nKde: {self._location}\nOdkaz: {self._link}" 
 
     def get_title(self) -> str: return self._title
 
@@ -50,11 +51,30 @@ class Vacancy:
                 and re.search(r"\d+", self._sallary).group() <= conditions["expected_sallary"] 
                 and re.search(rf"({replace_diacritics(conditions["expected_location"])})", replace_diacritics(self._location)))
     
-    def covert_to_dict(self) -> dict:
-        return {
-                "title": self._title,
-                "employer": self._employer,
-                "link": self._link,
-                "sallary": self._sallary,
-                "location": self._location
-               }
+    async def set_to_redis(self, vacancy_id: int):
+        vacancy_info = {
+                        "title": self._title,
+                        "employer": self._employer,
+                        "link": self._link,
+                        "sallary": self._sallary,
+                        "location": self._location
+                       }
+
+        await redis.hset(f"id:{vacancy_id}", mapping=vacancy_info)
+
+        await redis.close()
+
+    async def get_from_redis(self, vacancy_id: int):
+        vacancy_info = await redis.hgetall(f"id:{vacancy_id}")
+
+        await redis.close()
+
+        self._title = vacancy_info[b"title"].decode()
+
+        self._employer = vacancy_info[b"employer"].decode()
+
+        self._link = vacancy_info[b"link"].decode()
+
+        self._sallary = vacancy_info[b"sallary"].decode()
+
+        self._location = vacancy_info[b"location"].decode()
